@@ -13,7 +13,7 @@ RUN composer install \
 # ---------- Etapa 2: imagen final ----------
 # API puro (sin Vite/Tailwind): el frontend es un proyecto Next.js aparte,
 # así que aquí no se construyen assets.
-FROM php:8.2-fpm-alpine
+FROM php:8.3-fpm-alpine
 
 # nginx + supervisor + extensiones PHP que necesita Laravel con PostgreSQL
 RUN apk add --no-cache \

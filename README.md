@@ -7,8 +7,9 @@
 
 <p align="center">
   <img alt="Laravel 10" src="https://img.shields.io/badge/Laravel-10-FF2D20?logo=laravel&logoColor=white">
-  <img alt="PHP 8.1+" src="https://img.shields.io/badge/PHP-8.1%2B-777BB4?logo=php&logoColor=white">
-  <img alt="PostgreSQL 16" src="https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white">
+  <img alt="PHP 8.3" src="https://img.shields.io/badge/PHP-8.3-777BB4?logo=php&logoColor=white">
+  <img alt="Composer 2" src="https://img.shields.io/badge/Composer-2-885630?logo=composer&logoColor=white">
+  <img alt="PostgreSQL 18" src="https://img.shields.io/badge/PostgreSQL-18-4169E1?logo=postgresql&logoColor=white">
   <img alt="Sanctum" src="https://img.shields.io/badge/Auth-Sanctum-FF2D20?logo=laravel&logoColor=white">
   <img alt="API" src="https://img.shields.io/badge/API-45_endpoints-0969DA">
   <img alt="Docker" src="https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white">
@@ -25,7 +26,7 @@ php artisan migrate --seed          # tablas + usuarios admin y demo
 php artisan serve                   # http://127.0.0.1:8000
 ```
 
-> **Requiere** PHP 8.1+ (extensión `pdo_pgsql`) y PostgreSQL 16.
+> **Requiere** PHP 8.3 (extensión `pdo_pgsql`), Composer 2 y PostgreSQL 18.
 > Configura `DB_*` y `FRONTEND_URL` (allowlist de CORS) en el `.env` antes de migrar.
 > Las credenciales del seeder salen de `ADMIN_*` / `DEMO_*`; si dejas el `*_PASSWORD` vacío, se genera una al azar y se imprime.
 
@@ -35,7 +36,7 @@ php artisan serve                   # http://127.0.0.1:8000
 docker compose up --build           # API en http://localhost:8000
 ```
 
-Levanta la API (nginx + php-fpm) y PostgreSQL 16. Define `APP_KEY` y `DB_PASSWORD` en el entorno; con `RUN_MIGRATIONS=true` migra al arrancar.
+Levanta la API (nginx + php-fpm) y PostgreSQL 18. Define `APP_KEY` y `DB_PASSWORD` en el entorno; con `RUN_MIGRATIONS=true` migra al arrancar.
 
 ## 🧭 Qué hace
 
