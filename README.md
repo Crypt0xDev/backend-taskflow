@@ -1,17 +1,17 @@
 <h1 align="center">TaskFlow · API</h1>
 
 <p align="center">
-  <em>Backend REST en Laravel 10 para tareas, categorías y comentarios.</em><br>
+  <em>Backend REST en Laravel 10 para tareas, categorías, etiquetas y comentarios.</em><br>
   JSON bajo <code>/api/v1</code> · autenticación por token · listo para cualquier frontend.
 </p>
 
 <p align="center">
   <img alt="Laravel 10" src="https://img.shields.io/badge/Laravel-10-FF2D20?logo=laravel&logoColor=white">
-  <img alt="PHP 8.3" src="https://img.shields.io/badge/PHP-8.3-777BB4?logo=php&logoColor=white">
-  <img alt="PostgreSQL 18" src="https://img.shields.io/badge/PostgreSQL-18-4169E1?logo=postgresql&logoColor=white">
+  <img alt="PHP 8.1+" src="https://img.shields.io/badge/PHP-8.1%2B-777BB4?logo=php&logoColor=white">
+  <img alt="PostgreSQL 16" src="https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white">
   <img alt="Sanctum" src="https://img.shields.io/badge/Auth-Sanctum-FF2D20?logo=laravel&logoColor=white">
-  <img alt="API" src="https://img.shields.io/badge/API-24_endpoints-0969DA">
-  <img alt="Tests" src="https://img.shields.io/badge/tests-46_passing-3FB950">
+  <img alt="API" src="https://img.shields.io/badge/API-45_endpoints-0969DA">
+  <img alt="Docker" src="https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white">
 </p>
 
 ---
@@ -25,12 +25,21 @@ php artisan migrate --seed          # tablas + usuarios admin y demo
 php artisan serve                   # http://127.0.0.1:8000
 ```
 
-> **Requiere** PHP 8.3 (extensión `pdo_pgsql`) y PostgreSQL 18.
-> Configura `DB_*` y `FRONTEND_URL` en el `.env` antes de migrar.
+> **Requiere** PHP 8.1+ (extensión `pdo_pgsql`) y PostgreSQL 16.
+> Configura `DB_*` y `FRONTEND_URL` (allowlist de CORS) en el `.env` antes de migrar.
+> Las credenciales del seeder salen de `ADMIN_*` / `DEMO_*`; si dejas el `*_PASSWORD` vacío, se genera una al azar y se imprime.
+
+### 🐳 Con Docker
+
+```bash
+docker compose up --build           # API en http://localhost:8000
+```
+
+Levanta la API (nginx + php-fpm) y PostgreSQL 16. Define `APP_KEY` y `DB_PASSWORD` en el entorno; con `RUN_MIGRATIONS=true` migra al arrancar.
 
 ## 🧭 Qué hace
 
-🔐 Auth por token (Sanctum) &nbsp;·&nbsp; ✅ Tareas con **papelera** (soft delete, restaurar, borrar) &nbsp;·&nbsp; 🏷️ Categorías privadas por usuario &nbsp;·&nbsp; 💬 Comentarios públicos con moderación &nbsp;·&nbsp; 🛡️ Roles `admin` / `user` &nbsp;·&nbsp; 🚦 Rate limiting &nbsp;·&nbsp; 🌐 CORS allowlist.
+🔐 Auth por token (Sanctum, login por **email**) &nbsp;·&nbsp; ✅ Tareas con **papelera** (soft delete, restaurar, borrar definitivo) &nbsp;·&nbsp; 🏷️ Categorías y etiquetas privadas por usuario &nbsp;·&nbsp; 💬 Comentarios públicos con moderación &nbsp;·&nbsp; 🛡️ Roles `admin` / `user` + catálogo de permisos &nbsp;·&nbsp; 🚦 Rate limiting &nbsp;·&nbsp; 🌐 CORS allowlist.
 
 ## 🏗️ Arquitectura
 
@@ -53,6 +62,7 @@ app/Modules/<Modulo>/
 ├── Requests/                Validación (contrato de entrada)
 ├── Resources/               Forma del JSON (contrato de salida)
 ├── Policies/                Permisos por recurso
+├── Exceptions/              Reglas de negocio (ej. borrado con dependientes)
 └── Middleware/              Solo si hace falta (ej. admin)
 ```
 
@@ -61,37 +71,37 @@ app/Modules/<Modulo>/
 - El dueño (`user_id`) lo fija la Action, nunca llega desde el input.
 - `role` no es asignable en masa: se asigna aparte.
 - Los Resources son el contrato público; el front no ve columnas crudas.
+- El manejo de errores usa excepciones propias con `render()` (JSON + código HTTP correcto).
 
-Módulos: **Auth · Task · Category · Comment · Users**.
+Módulos: **Auth · Task · Category · Tag · Comment · Users · Access** (roles y permisos).
 
 ## 🛣️ Endpoints
 
 Todos bajo `/api/v1`. **Token** = requiere `Authorization: Bearer`.
 
 <details>
-<summary><b>Ver los 24 endpoints</b></summary>
+<summary><b>Ver los 45 endpoints</b></summary>
 
 #### Auth
 | Método | URL | Acceso |
 | --- | --- | --- |
 | POST | `/register` · `/login` | Público |
 | POST | `/logout` | Token |
-| GET | `/me` | Token |
+| GET · PUT | `/me` | Token |
+| PUT | `/me/password` | Token |
 
-#### Tareas
+#### Tareas · Categorías · Etiquetas
+Mismo patrón CRUD + papelera para `/tasks`, `/categories` y `/tags`:
+
 | Método | URL | Acceso |
 | --- | --- | --- |
-| GET · POST | `/tasks` | Token |
-| GET | `/tasks/trashed` | Token |
-| GET · PUT · DELETE | `/tasks/{id}` | Token |
-| POST | `/tasks/{id}/restore` | Token |
-| DELETE | `/tasks/{id}/force` | Token |
+| GET · POST | `/{recurso}` | Token |
+| GET | `/{recurso}/trashed` | Token |
+| GET · PUT · DELETE | `/{recurso}/{id}` | Token |
+| POST | `/{recurso}/{id}/restore` | Token |
+| DELETE | `/{recurso}/{id}/force` | Token |
 
-#### Categorías
-| Método | URL | Acceso |
-| --- | --- | --- |
-| GET · POST | `/categories` | Token |
-| GET · PUT · DELETE | `/categories/{id}` | Token |
+> `force` está protegido: eliminar definitivamente una categoría con tareas, o una etiqueta en uso, responde **409 Conflict**.
 
 #### Comentarios
 | Método | URL | Acceso |
@@ -103,8 +113,16 @@ Todos bajo `/api/v1`. **Token** = requiere `Authorization: Bearer`.
 #### Usuarios (admin)
 | Método | URL | Acceso |
 | --- | --- | --- |
-| GET | `/admin/users` · `/admin/users/{id}` | Admin |
-| PUT · DELETE | `/admin/users/{id}` | Admin |
+| GET · POST | `/admin/users` | Admin |
+| GET · PUT · DELETE | `/admin/users/{id}` | Admin |
+| PUT | `/admin/users/{id}/password` | Admin |
+
+#### Roles y permisos (admin)
+| Método | URL | Acceso |
+| --- | --- | --- |
+| GET · POST | `/admin/roles` | Admin |
+| GET · PUT · DELETE | `/admin/roles/{id}` | Admin |
+| GET | `/admin/permissions` | Admin |
 
 </details>
 
@@ -113,23 +131,16 @@ Todos bajo `/api/v1`. **Token** = requiere `Authorization: Bearer`.
 
 | Tabla | Campos propios | Notas |
 | --- | --- | --- |
-| `users` | `user_name`, `password`, `role` | Sin email · `role`: `admin` \| `user` |
-| `category` | `name`, `user_id` | Privada por usuario |
-| `task` | `title`, `description`, `status`, `category_id`, `user_id` | FK `set null` |
+| `users` | `user_name`, `email`, `password`, `role`, `birth_date`, `avatar`, `must_change_password` | Login por email · `role`: `admin` \| `user` |
+| `category` | `name`, `description`, `color`, `user_id` | Privada por usuario |
+| `tag` | `name`, `description`, `color`, `user_id` | Privada · N:M con `task` vía `task_tag` |
+| `task` | `title`, `description`, `status`, `priority`, `due_date`, `category_id`, `user_id` | FK categoría `set null`, pivot de tags `cascade` |
 | `comments` | `body`, `user_id` | Autor nulo si se elimina |
+| `roles` · `permissions` · `permission_role` | catálogo administrable | Roles `admin`/`user` protegidos |
 
-Todas con `timestamps` y `deleted_at` (borrado lógico).
+Todas las de dominio con `timestamps` y `deleted_at` (borrado lógico).
 
 </details>
-
-## 🧪 Tests
-
-**46 tests** contra PostgreSQL (base `taskflow_testing`, fijada en `phpunit.xml`).
-
-```bash
-createdb taskflow_testing   # solo la 1ª vez
-php artisan test
-```
 
 ## 🧰 Comandos útiles
 
