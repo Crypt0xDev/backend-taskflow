@@ -43,10 +43,9 @@ if [ "${RUN_MIGRATIONS}" = "true" ]; then
     php artisan migrate --force || echo "[entrypoint] Las migraciones fallaron."
 fi
 
-# Cachés de producción
+# Cachés de producción (sin view:cache: es una API pura, sin resources/views)
 php artisan config:clear >/dev/null 2>&1 || true
 php artisan config:cache
 php artisan route:cache
-php artisan view:cache
 
 exec "$@"
