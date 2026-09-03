@@ -33,8 +33,11 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         RateLimiter::for('auth', function (Request $request) {
-            // Poner en 6 Production
-            return Limit::perMinute(20)->by($request->ip());
+            return Limit::perMinute(6)->by($request->ip());
+        });
+
+        RateLimiter::for('register', function (Request $request) {
+            return Limit::perMinute(3)->by($request->ip());
         });
     }
 }

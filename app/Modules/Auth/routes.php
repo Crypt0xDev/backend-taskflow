@@ -3,8 +3,9 @@
 use App\Modules\Auth\AuthController;
 use Illuminate\Support\Facades\Route;
 
+Route::middleware('throttle:register')->post('/register', [AuthController::class, 'register']);
+
 Route::middleware('throttle:auth')->group(function () {
-    Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
 });
 
