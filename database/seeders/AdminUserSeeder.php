@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Modules\Access\Role\Role;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -48,7 +49,7 @@ class AdminUserSeeder extends Seeder
             ]
         );
 
-        $user->role = $role;
+        $user->role_id = Role::where('name', $role)->value('id');
         $user->deleted_at = null;
         $user->save();
 
