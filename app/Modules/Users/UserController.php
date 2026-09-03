@@ -13,14 +13,15 @@ use App\Modules\Users\Requests\StoreUserRequest;
 use App\Modules\Users\Requests\UpdateUserRequest;
 use App\Modules\Users\Resources\UserResource;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class UserController extends Controller
 {
-    public function index(ListUsersAction $action): AnonymousResourceCollection
+    public function index(Request $request, ListUsersAction $action): AnonymousResourceCollection
     {
         $this->authorize('viewAny', User::class);
-        return UserResource::collection($action->execute());
+        return UserResource::collection($action->execute($request));
     }
 
     public function show(User $user): UserResource
