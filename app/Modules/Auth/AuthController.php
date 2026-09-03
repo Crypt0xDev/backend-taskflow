@@ -21,7 +21,7 @@ class AuthController extends Controller
     {
         $result = $action->execute($request->validated());
         return response()->json([
-            'user' => new UserResource($result['user']),
+            'user' => new UserResource($result['user']->load('role.permissions')),
             'token' => $result['token'],
         ], 201);
     }
@@ -30,7 +30,7 @@ class AuthController extends Controller
     {
         $result = $action->execute($request->validated());
         return response()->json([
-            'user' => new UserResource($result['user']),
+            'user' => new UserResource($result['user']->load('role.permissions')),
             'token' => $result['token'],
         ]);
     }
@@ -44,12 +44,13 @@ class AuthController extends Controller
 
     public function me(Request $request): UserResource
     {
-        return new UserResource($request->user());
+        return new UserResource($request->user()->load('role.permissions'));
     }
 
     public function updateProfile(UpdateProfileRequest $request, UpdateProfileAction $action): UserResource
     {
-        return new UserResource($action->execute($request->user(), $request->validated()));
+        $user = $action->execute($request->user(), $request->validated());
+        return new UserResource($user->load('role.permissions'));
     }
 
     public function updatePassword(UpdatePasswordRequest $request, UpdatePasswordAction $action): JsonResponse

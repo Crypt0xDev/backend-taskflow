@@ -7,11 +7,6 @@ use Illuminate\Validation\Rule;
 
 class UpdateProfileRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        return true;
-    }
-
     public function rules(): array
     {
         return [
@@ -29,7 +24,7 @@ class UpdateProfileRequest extends FormRequest
                 Rule::unique('users', 'email')->ignore($this->user()->id),
             ],
             'birth_date' => ['sometimes', 'nullable', 'date', 'before:today'],
-            'avatar' => ['sometimes', 'nullable', 'string', 'max:16'],
+            'avatar' => ['sometimes', 'nullable', 'string', 'max:255'],
         ];
     }
 }

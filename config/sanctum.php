@@ -13,6 +13,14 @@ return [
     | authentication cookies. Typically, these should include your local
     | and production domains which access your API via a frontend SPA.
     |
+    | TaskFlow no usa este modo: autentica solo con tokens Bearer vía
+    | auth:sanctum (ver app/Http/Middleware/Authenticate.php, que responde
+    | 401 en vez de redirigir). EnsureFrontendRequestsAreStateful está
+    | deliberadamente comentado en app/Http/Kernel.php — no hay auth por
+    | cookie de SPA. 'stateful' y 'guard' quedan sin efecto; no los borres
+    | pensando que son necesarios, pero tampoco actives el middleware sin
+    | revisar CORS/CSRF primero.
+    |
     */
 
     'stateful' => explode(',', env('SANCTUM_STATEFUL_DOMAINS', sprintf(
