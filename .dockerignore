@@ -1,16 +1,31 @@
+# Archivos a ignorar en el contexto de Docker
+
+# Control de versiones
 .git
 .gitignore
+
+# Archivos de dependencias
 vendor
+
+# Archivos de Laravel
 storage/logs/*
 storage/framework/cache/data/*
 storage/framework/sessions/*
 storage/framework/views/*
+
+# Variables de entorno
 .env
 .env.*
 !.env.example
+
+# Tests
 tests
 phpunit.xml
+
+# Docuentación
 README.md
+
+# Archivos de Docker
 Dockerfile
 .dockerignore
 docker-compose.yml

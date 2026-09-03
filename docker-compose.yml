@@ -1,5 +1,4 @@
-# Compose de referencia: sirve para probar en local y como base
-# si prefieres desplegar en Dokploy con "Docker Compose" en vez de "Dockerfile".
+# Docker Compose file for TaskFlow application
 services:
   app:
     build:
@@ -35,13 +34,13 @@ services:
     image: postgres:18-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: wa_taskflow
+      POSTGRES_DB: db_taskflow
       POSTGRES_USER: taskflow
       POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
     volumes:
       - postgres:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U taskflow -d wa_taskflow"]
+      test: ["CMD-SHELL", "pg_isready -U taskflow -d db_taskflow"]
       interval: 5s
       timeout: 5s
       retries: 20

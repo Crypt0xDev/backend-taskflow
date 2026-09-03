@@ -1,3 +1,6 @@
+# Configuración de Git para ignorar archivos y directorios específicos
+
+# Archivos y directorios a ignorar
 /.phpunit.cache
 /node_modules
 /public/build
@@ -5,15 +8,24 @@
 /public/storage
 /storage/*.key
 /vendor
+
+# Variables de entorno
 .env
-.env.backup
-.env.production
+.env.*
+!.env.example
+!.env.docker.example
+
+# Configuración de Homestead
 Homestead.json
 Homestead.yaml
 auth.json
 npm-debug.log
 yarn-error.log
+
+# Configuración de IDEs y editores
 /.fleet
 /.idea
 /.vscode
+
+# Configuración de PHPUnit
 .phpunit.result.cache

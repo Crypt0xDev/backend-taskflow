@@ -11,8 +11,7 @@ RUN composer install \
     --optimize-autoloader
 
 # ---------- Etapa 2: imagen final ----------
-# API puro (sin Vite/Tailwind): el frontend es un proyecto Next.js aparte,
-# así que aquí no se construyen assets.
+# Imagen base: PHP 8.3 con FPM y Alpine Linux
 FROM php:8.3-fpm-alpine
 
 # nginx + supervisor + extensiones PHP que necesita Laravel con PostgreSQL
