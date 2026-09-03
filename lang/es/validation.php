@@ -29,9 +29,11 @@ return [
         'string' => 'El campo :attribute debe tener al menos :min caracteres.',
     ],
     'numeric' => 'El campo :attribute debe ser un numero.',
+    'regex' => 'El formato del campo :attribute no es valido.',
     'required' => 'El campo :attribute es obligatorio.',
     'string' => 'El campo :attribute debe ser texto.',
     'unique' => 'El :attribute ya esta en uso.',
+    'current_password' => 'La contraseña actual es incorrecta.',
 
     'attributes' => [
         'user_name' => 'nombre de usuario',
@@ -44,6 +46,8 @@ return [
         'name' => 'nombre',
         'email' => 'correo',
         'message' => 'mensaje',
+        'color' => 'color',
+        'current_password' => 'contraseña actual',
     ],
 
 ];
