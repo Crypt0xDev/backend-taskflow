@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Modules\Access\Role;
+namespace App\Modules\Access\Role\Resources;
 
-use App\Modules\Access\Permission\PermissionResource;
+use App\Modules\Access\Permission\Resources\PermissionResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
