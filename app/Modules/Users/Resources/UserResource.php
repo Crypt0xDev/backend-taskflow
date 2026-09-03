@@ -13,7 +13,17 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'username' => $this->user_name,
             'email' => $this->email,
-            'role' => $this->role,
+            'role' => [
+                'id' => $this->role?->id,
+                'name' => $this->role?->name,
+            ],
+            'permissions' => $this->whenLoaded(
+                'role',
+                fn () => $this->role?->permissions
+                    ?->map(fn ($permission) => "{$permission->module}.{$permission->name}")
+                    ->values() ?? [],
+                []
+            ),
             'birth_date' => $this->birth_date?->toDateString(),
             'age' => $this->age,
             'avatar' => $this->avatar,

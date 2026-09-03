@@ -7,11 +7,6 @@ use Illuminate\Validation\Rule;
 
 class UpdateUserRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        return true;
-    }
-
     public function rules(): array
     {
         return [
@@ -28,7 +23,7 @@ class UpdateUserRequest extends FormRequest
                 'max:255',
                 Rule::unique('users', 'email')->ignore($this->route('user')->id),
             ],
-            'role' => ['sometimes', Rule::in(['admin', 'user'])],
+            'role_id' => ['sometimes', Rule::exists('roles', 'id')],
         ];
     }
 }

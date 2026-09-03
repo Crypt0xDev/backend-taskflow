@@ -32,6 +32,16 @@ class TagPolicy
         return $this->owns($user, $tag);
     }
 
+    public function restore(User $user, Tag $tag): bool
+    {
+        return $this->owns($user, $tag);
+    }
+
+    public function forceDelete(User $user, Tag $tag): bool
+    {
+        return $this->owns($user, $tag);
+    }
+
     private function owns(User $user, Tag $tag): bool
     {
         return $user->id === $tag->user_id || $user->isAdmin();

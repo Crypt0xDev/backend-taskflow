@@ -18,7 +18,7 @@ class TagController extends Controller
 {
     public function index(Request $request, ListTagsAction $action): AnonymousResourceCollection
     {
-        return TagResource::collection($action->execute($request->user()));
+        return TagResource::collection($action->execute($request->user(), $request->boolean('all')));
     }
 
     public function store(StoreTagRequest $request, CreateTagAction $action): JsonResponse
@@ -49,37 +49,30 @@ class TagController extends Controller
 
     public function trashed(Request $request): AnonymousResourceCollection
     {
+        $all = $request->boolean('all') && $request->user()->isAdmin();
         $tags = Tag::onlyTrashed()
             ->withCount('tasks')
-            ->where('user_id', $request->user()->id)
+            ->when(! $all, fn($query) => $query->where('user_id', $request->user()->id))
             ->orderBy('name')
-            ->get();
+            ->paginate(20);
         return TagResource::collection($tags);
     }
 
-    public function restore(Request $request, Tag $tag): TagResource
+    public function restore(Tag $tag): TagResource
     {
-        $this->ensureOwner($request, $tag);
+        $this->authorize('restore', $tag);
         $tag->restore();
         return TagResource::make($tag->loadCount('tasks'));
     }
 
-    public function forceDelete(Request $request, Tag $tag): JsonResponse
+    public function forceDelete(Tag $tag): JsonResponse
     {
-        $this->ensureOwner($request, $tag);
+        $this->authorize('forceDelete', $tag);
         if ($tag->tasks()->withTrashed()->exists()) {
             throw new TagInUseException();
         }
 
         $tag->forceDelete();
         return response()->json(['message' => 'Etiqueta eliminada definitivamente.']);
-    }
-
-    private function ensureOwner(Request $request, Tag $tag): void
-    {
-        abort_unless(
-            $request->user()->id === $tag->user_id || $request->user()->isAdmin(),
-            403,
-        );
     }
 }

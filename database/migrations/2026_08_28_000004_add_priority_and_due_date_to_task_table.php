@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('task', function (Blueprint $table) {
+        Schema::table('tasks', function (Blueprint $table) {
             $table->enum('priority', ['baja', 'media', 'alta'])->default('media')->after('status');
             $table->date('due_date')->nullable()->after('priority');
         });
@@ -16,7 +16,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('task', function (Blueprint $table) {
+        Schema::table('tasks', function (Blueprint $table) {
             $table->dropColumn(['priority', 'due_date']);
         });
     }

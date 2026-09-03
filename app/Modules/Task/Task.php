@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Task extends Model
 {
     use HasFactory, SoftDeletes;
-    protected $table = 'task';
+    protected $table = 'tasks';
     protected $primaryKey = 'id';
     protected $fillable = ['title', 'description', 'category_id', 'user_id', 'status', 'priority', 'due_date'];
     protected $casts = [

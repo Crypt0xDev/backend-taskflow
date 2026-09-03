@@ -3,15 +3,16 @@
 namespace App\Modules\Comment\Actions;
 
 use App\Modules\Comment\Comment;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class ListCommentsAction
 {
-    public function execute(): Collection
+    public function execute(): LengthAwarePaginator
     {
-        return Comment::with('user')
+        return Comment::query()
+            ->with('user')
             ->latest()
             ->latest('id')
-            ->get();
+            ->paginate(20);
     }
 }

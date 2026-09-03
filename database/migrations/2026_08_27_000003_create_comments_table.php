@@ -10,13 +10,13 @@ return new class extends Migration
     {
         Schema::create('comments', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id')->nullable();
+            $table->unsignedBigInteger('user_id')->index();
             $table->text('body');
             $table->timestamps();
             $table->softDeletes();
             $table->foreign('user_id', 'fk_comment_user')
                 ->references('id')->on('users')
-                ->onDelete('set null');
+                ->onDelete('cascade');
         });
     }
 

@@ -14,7 +14,7 @@ class CreateUserAction
             'password' => $data['password'],
             'must_change_password' => true,
         ]);
-        $user->role = $data['role'];
+        $user->role_id = $data['role_id'];
         $user->save();
         return $user;
     }

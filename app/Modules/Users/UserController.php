@@ -13,43 +13,46 @@ use App\Modules\Users\Requests\StoreUserRequest;
 use App\Modules\Users\Requests\UpdateUserRequest;
 use App\Modules\Users\Resources\UserResource;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class UserController extends Controller
 {
     public function index(ListUsersAction $action): AnonymousResourceCollection
     {
+        $this->authorize('viewAny', User::class);
         return UserResource::collection($action->execute());
     }
 
     public function show(User $user): UserResource
     {
-        return UserResource::make($user);
+        $this->authorize('view', $user);
+        return UserResource::make($user->load('role.permissions'));
     }
 
     public function store(StoreUserRequest $request, CreateUserAction $action): JsonResponse
     {
+        $this->authorize('create', User::class);
         $user = $action->execute($request->validated());
-        return UserResource::make($user)->response()->setStatusCode(201);
+        return UserResource::make($user->load('role.permissions'))->response()->setStatusCode(201);
     }
 
     public function update(UpdateUserRequest $request, User $user, UpdateUserAction $action): UserResource
     {
-        return UserResource::make($action->execute($user, $request->validated()));
+        $this->authorize('update', $user);
+        $updated = $action->execute($user, $request->validated());
+        return UserResource::make($updated->load('role.permissions'));
     }
 
     public function resetPassword(ResetPasswordRequest $request, User $user, ResetUserPasswordAction $action): JsonResponse
     {
+        $this->authorize('resetPassword', $user);
         $action->execute($user, $request->validated());
         return response()->json(['message' => 'Contraseña restablecida.']);
     }
 
-    public function destroy(Request $request, User $user): JsonResponse
+    public function destroy(User $user): JsonResponse
     {
-        if ($request->user()->id === $user->id) {
-            return response()->json(['message' => 'No puedes eliminar tu propia cuenta.'], 422);
-        }
+        $this->authorize('delete', $user);
         $user->delete();
         return response()->json(['message' => 'Usuario eliminado.']);
     }

@@ -18,7 +18,7 @@ class CategoryController extends Controller
 {
     public function index(Request $request, ListCategoriesAction $action): AnonymousResourceCollection
     {
-        return CategoryResource::collection($action->execute($request->user()));
+        return CategoryResource::collection($action->execute($request->user(), $request->boolean('all')));
     }
 
     public function store(StoreCategoryRequest $request, CreateCategoryAction $action): JsonResponse
@@ -49,36 +49,29 @@ class CategoryController extends Controller
 
     public function trashed(Request $request): AnonymousResourceCollection
     {
+        $all = $request->boolean('all') && $request->user()->isAdmin();
         $categories = Category::onlyTrashed()
             ->withCount('tasks')
-            ->where('user_id', $request->user()->id)
+            ->when(! $all, fn($query) => $query->where('user_id', $request->user()->id))
             ->orderBy('name')
-            ->get();
+            ->paginate(20);
         return CategoryResource::collection($categories);
     }
 
-    public function restore(Request $request, Category $category): CategoryResource
+    public function restore(Category $category): CategoryResource
     {
-        $this->ensureOwner($request, $category);
+        $this->authorize('restore', $category);
         $category->restore();
         return CategoryResource::make($category->loadCount('tasks'));
     }
 
-    public function forceDelete(Request $request, Category $category): JsonResponse
+    public function forceDelete(Category $category): JsonResponse
     {
-        $this->ensureOwner($request, $category);
+        $this->authorize('forceDelete', $category);
         if ($category->tasks()->withTrashed()->exists()) {
             throw new CategoryHasTasksException();
         }
         $category->forceDelete();
         return response()->json(['message' => 'Categoría eliminada definitivamente.']);
-    }
-
-    private function ensureOwner(Request $request, Category $category): void
-    {
-        abort_unless(
-            $request->user()->id === $category->user_id || $request->user()->isAdmin(),
-            403,
-        );
     }
 }

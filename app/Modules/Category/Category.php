@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Category extends Model
 {
     use SoftDeletes;
-    protected $table = 'category';
+    protected $table = 'categories';
     protected $primaryKey = 'id';
     protected $fillable = ['name', 'description', 'color', 'user_id'];
     protected $casts = [
@@ -25,5 +25,12 @@ class Category extends Model
     public function tasks()
     {
         return $this->hasMany(Task::class, 'category_id');
+    }
+
+    protected static function booted(): void
+    {
+        static::deleting(function (Category $category) {
+            $category->tasks()->withTrashed()->update(['category_id' => null]);
+        });
     }
 }

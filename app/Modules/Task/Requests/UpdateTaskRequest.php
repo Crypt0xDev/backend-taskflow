@@ -7,11 +7,6 @@ use Illuminate\Validation\Rule;
 
 class UpdateTaskRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        return true;
-    }
-
     public function rules(): array
     {
         return [
@@ -19,13 +14,17 @@ class UpdateTaskRequest extends FormRequest
             'description' => ['required', 'string', 'max:2000'],
             'category_id' => [
                 'nullable',
-                Rule::exists('category', 'id')->where('user_id', $this->user()->id),
+                Rule::exists('categories', 'id')->where(fn($q) => $q
+                    ->where('user_id', $this->user()->id)
+                    ->whereNull('deleted_at')),
             ],
             'status' => ['required', Rule::in(['pending', 'in_progress', 'completed'])],
             'priority' => ['sometimes', Rule::in(['baja', 'media', 'alta'])],
             'due_date' => ['nullable', 'date'],
             'tag_ids' => ['sometimes', 'array'],
-            'tag_ids.*' => [Rule::exists('tag', 'id')->where('user_id', $this->user()->id)],
+            'tag_ids.*' => [Rule::exists('tags', 'id')->where(fn($q) => $q
+                ->where('user_id', $this->user()->id)
+                ->whereNull('deleted_at'))],
         ];
     }
 }

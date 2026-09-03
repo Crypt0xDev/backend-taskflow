@@ -8,19 +8,20 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('tag', function (Blueprint $table) {
+        Schema::create('tags', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('color', 7)->nullable();
-            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->unsignedBigInteger('user_id');
             $table->timestamps();
             $table->softDeletes();
             $table->unique(['user_id', 'name']);
+            $table->foreign('user_id', 'fk_tag_user')->references('id')->on('users')->onDelete('cascade');
         });
 
         Schema::create('task_tag', function (Blueprint $table) {
-            $table->foreignId('task_id')->constrained('task')->cascadeOnDelete();
-            $table->foreignId('tag_id')->constrained('tag')->cascadeOnDelete();
+            $table->foreignId('task_id')->constrained('tasks')->cascadeOnDelete();
+            $table->foreignId('tag_id')->constrained('tags')->cascadeOnDelete();
             $table->primary(['task_id', 'tag_id']);
         });
     }
@@ -28,6 +29,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('task_tag');
-        Schema::dropIfExists('tag');
+        Schema::dropIfExists('tags');
     }
 };

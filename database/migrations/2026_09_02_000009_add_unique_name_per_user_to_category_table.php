@@ -8,15 +8,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('tags', function (Blueprint $table) {
-            $table->string('description')->nullable()->after('name');
+        Schema::table('categories', function (Blueprint $table) {
+            $table->unique(['user_id', 'name'], 'categories_user_id_name_unique');
         });
     }
 
     public function down(): void
     {
-        Schema::table('tags', function (Blueprint $table) {
-            $table->dropColumn('description');
+        Schema::table('categories', function (Blueprint $table) {
+            $table->dropUnique('categories_user_id_name_unique');
         });
     }
 };

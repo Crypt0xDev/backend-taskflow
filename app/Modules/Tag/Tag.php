@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Tag extends Model
 {
     use SoftDeletes;
-    protected $table = 'tag';
+    protected $table = 'tags';
     protected $fillable = ['name', 'description', 'color', 'user_id'];
     protected $casts = ['user_id' => 'integer'];
 
@@ -23,5 +23,12 @@ class Tag extends Model
     public function tasks(): BelongsToMany
     {
         return $this->belongsToMany(Task::class, 'task_tag');
+    }
+
+    protected static function booted(): void
+    {
+        static::deleting(function (Tag $tag) {
+            $tag->tasks()->detach();
+        });
     }
 }

@@ -19,13 +19,13 @@ class TaskController extends Controller
     public function index(Request $request, ListTasksAction $action): AnonymousResourceCollection
     {
         $q = trim((string) $request->query('q', ''));
-        $tasks = $action->execute($request->user(), $q !== '' ? $q : null);
+        $tasks = $action->execute($request->user(), $q !== '' ? $q : null, $request->boolean('all'));
         return TaskResource::collection($tasks);
     }
 
     public function trashed(Request $request, ListTrashedTasksAction $action): AnonymousResourceCollection
     {
-        return TaskResource::collection($action->execute($request->user()));
+        return TaskResource::collection($action->execute($request->user(), $request->boolean('all')));
     }
 
     public function store(StoreTaskRequest $request, CreateTaskAction $action): JsonResponse
@@ -38,7 +38,7 @@ class TaskController extends Controller
     public function show(Task $task): TaskResource
     {
         $this->authorize('view', $task);
-        return TaskResource::make($task->load('category'));
+        return TaskResource::make($task->load(['category', 'tags']));
     }
 
     public function update(UpdateTaskRequest $request, Task $task, UpdateTaskAction $action): TaskResource
@@ -58,7 +58,7 @@ class TaskController extends Controller
     {
         $this->authorize('restore', $task);
         $task->restore();
-        return TaskResource::make($task->load('category'));
+        return TaskResource::make($task->load(['category', 'tags']));
     }
 
     public function forceDelete(Task $task): JsonResponse
